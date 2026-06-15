@@ -1,9 +1,30 @@
 {
+  "best_model": "logistic_regression",
+  "model_comparison": {
+    "random_forest": {
+      "cv_mean": 0.9375,
+      "cv_std": 0.036
+    },
+    "logistic_regression": {
+      "cv_mean": 0.964,
+      "cv_std": 0.0339
+    },
+    "k_neighbors": {
+      "cv_mean": 0.9285,
+      "cv_std": 0.0222
+    }
+  },
   "accuracy": 0.9211,
   "classes": [
     "setosa",
     "versicolor",
     "virginica"
+  ],
+  "features": [
+    "sepal length (cm)",
+    "sepal width (cm)",
+    "petal length (cm)",
+    "petal width (cm)"
   ],
   "feature_count": 4,
   "sample_count": 150,
