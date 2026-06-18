@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
@@ -50,6 +50,7 @@ def main():
     w = v.predict(l)
     x = accuracy_score(i, w)
     y = classification_report(i, w, target_names=d, output_dict=True)
+    ae = confusion_matrix(i, w).tolist()
 
     z = Path("models")
     z.mkdir(exist_ok=True)
@@ -66,6 +67,7 @@ def main():
         "feature_count": int(b.shape[1]),
         "sample_count": int(b.shape[0]),
         "report": y,
+        "confusion_matrix": ae,
     }
 
     with open(z / "metrics.json", "w", encoding="utf-8") as ab:

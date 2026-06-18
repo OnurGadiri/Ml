@@ -25,6 +25,15 @@ def main():
     for f in c["classes"]:
         g = c["report"][f]
         print(f"  {f}: precision={g['precision']:.3f} recall={g['recall']:.3f} f1={g['f1-score']:.3f}")
+    print()
+    print("confusion matrix:")
+    h = c["classes"]
+    i = c["confusion_matrix"]
+    j = "     " + "  ".join(f"{x:>5}" for x in h)
+    print(j)
+    for k, l in enumerate(i):
+        m = "  ".join(f"{x:>5}" for x in l)
+        print(f"{h[k]:>5} {m}")
 
 
 if __name__ == "__main__":

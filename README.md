@@ -8,6 +8,7 @@ small ml project i built to practice training, comparing models and saving the b
 - picks the best model and trains it on the train split
 - saves model + scaler + metrics to `models/`
 - single prediction from command line or batch prediction from csv
+- confusion matrix plot + simple flask api
 
 ## setup
 
@@ -31,14 +32,20 @@ output example:
 files in `models/`:
 - `classifier.pkl` — best trained model
 - `scaler.pkl` — feature scaler
-- `metrics.json` — comparison results + classification report
+- `metrics.json` — comparison results + classification report + confusion matrix
 
 ## evaluate
 
-prints saved metrics in a readable way:
-
 ```bash
 python evaluate.py
+```
+
+## plot
+
+saves confusion matrix image to `output/confusion_matrix.png`:
+
+```bash
+python plot.py
 ```
 
 ## predict (single sample)
@@ -57,6 +64,26 @@ python batch_predict.py data/samples.csv
 ```
 
 csv must have the same column names as the iris dataset features.
+
+## api
+
+start server:
+
+```bash
+python app.py
+```
+
+health check:
+
+```bash
+curl http://127.0.0.1:5000/health
+```
+
+predict:
+
+```bash
+curl -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/json" -d "{\"sepal_length\": 5.1, \"sepal_width\": 3.5, \"petal_length\": 1.4, \"petal_width\": 0.2}"
+```
 
 ## variable names in code
 
@@ -91,6 +118,7 @@ i kept names short on purpose. here's what they mean:
 | `w` | predictions on test set |
 | `x` | test accuracy score |
 | `y` | classification report as dict |
+| `ae` | confusion matrix as nested list |
 | `z` | path to models folder |
 | `aa` | metrics dict written to json |
 | `ab` | file handle for metrics.json |
@@ -127,6 +155,12 @@ i kept names short on purpose. here's what they mean:
 | `e` | model stats in comparison loop |
 | `f` | class name in report loop |
 | `g` | per-class metrics dict |
+| `h` | class names for matrix header |
+| `i` | confusion matrix data |
+| `j` | header line string |
+| `k` | row index in matrix loop |
+| `l` | one row of matrix |
+| `m` | formatted row values string |
 
 ### batch_predict.py
 
@@ -157,10 +191,51 @@ i kept names short on purpose. here's what they mean:
 | `w` | confidence of predicted class |
 | `x` | formatted feature string for print |
 
+### plot.py
+
+| name | what it is |
+|------|------------|
+| `a` | path to metrics.json |
+| `b` | file handle for metrics.json |
+| `c` | parsed metrics dict |
+| `d` | confusion matrix as numpy array |
+| `e` | class names list |
+| `f` | matplotlib figure |
+| `g` | matplotlib axes |
+| `h` | image object from imshow |
+| `k` | output folder path |
+| `l` | output png path |
+| `m` | row index in text loop |
+| `n` | column index in text loop |
+
+### app.py
+
+| name | what it is |
+|------|------------|
+| `a` | flask app instance |
+| `b` | models directory path |
+| `c` | loaded scaler |
+| `d` | loaded classifier |
+| `e` | file handle for metrics.json |
+| `f` | parsed metrics from json |
+| `g` | class names list |
+| `h` | health check route function |
+| `i` | predict route function |
+| `j` | json body from request |
+| `k` | required field names list |
+| `l` | collected input values |
+| `m` | one field name in loop |
+| `n` | numpy array from input |
+| `o` | scaled input |
+| `p` | predicted class index |
+| `q` | probability array |
+| `r` | predicted species label |
+| `s` | loop index for probabilities dict |
+
 ## stack
 
-python, scikit-learn, numpy, joblib
+python, scikit-learn, numpy, joblib, matplotlib, flask
 
 ## notes
 
-dataset is built into sklearn. test split is 25%, stratified. next step maybe add a simple api or try xgboost.
+dataset is built into sklearn. test split is 25%, stratified. might try more models or deploy api later.
