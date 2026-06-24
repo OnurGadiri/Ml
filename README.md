@@ -9,6 +9,7 @@ small ml project i built to practice training, comparing models and saving the b
 - saves model + scaler + metrics to `models/`
 - single prediction from command line or batch prediction from csv
 - confusion matrix plot + simple flask api
+- web ui to test predictions in the browser
 
 ## setup
 
@@ -64,6 +65,19 @@ python batch_predict.py data/samples.csv
 ```
 
 csv must have the same column names as the iris dataset features.
+
+## web ui
+
+train first, then start the server and open the browser:
+
+```bash
+python train.py
+python app.py
+```
+
+go to: http://127.0.0.1:5000
+
+the page has input fields, live prediction, model stats and confusion matrix chart.
 
 ## api
 
@@ -231,11 +245,32 @@ i kept names short on purpose. here's what they mean:
 | `q` | probability array |
 | `r` | predicted species label |
 | `s` | loop index for probabilities dict |
+| `t` | index route — serves index.html |
+| `u` | chart route — serves confusion matrix png |
+| `v` | metrics route function |
+
+### static/app.js
+
+| name | what it is |
+|------|------------|
+| `a` | form element |
+| `b` | result output element |
+| `c` | probability bars container |
+| `d` | model info container |
+| `e` | error message element |
+| `f` | chart image element |
+| `g` | load metrics function |
+| `h` | render probability bars function |
+| `i` | event or probabilities arg |
+| `j` | fetch response or sorted entries |
+| `k` | request body or species key |
+| `l` | fetch response or probability value |
+| `m` | json data or bar row element |
 
 ## stack
 
-python, scikit-learn, numpy, joblib, matplotlib, flask
+python, scikit-learn, numpy, joblib, matplotlib, flask, html/css/js
 
 ## notes
 
-dataset is built into sklearn. test split is 25%, stratified. might try more models or deploy api later.
+dataset is built into sklearn. test split is 25%, stratified. web ui runs on the same flask server as the api.
