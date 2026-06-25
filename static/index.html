@@ -3,20 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iris Species Classifier</title>
+  <title>Iris ML Platform</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <div class="wrap">
     <header>
-      <p class="tag">ml project</p>
+      <p class="tag">ml platform</p>
       <h1>Iris Species Classifier</h1>
-      <p class="sub">enter flower measurements and get a species prediction from the trained model</p>
+      <p class="sub">expanded dataset, 6 models, auto tuning, live predictions and charts</p>
     </header>
+
+    <section class="stats" id="stats"></section>
 
     <main class="grid">
       <section class="card">
-        <h2>measurements</h2>
+        <h2>predict</h2>
+        <div class="presets" id="presets"></div>
         <form id="form">
           <label>
             <span>sepal length (cm)</span>
@@ -50,9 +53,24 @@
         <div id="info" class="info">loading...</div>
       </section>
 
-      <section class="card wide">
+      <section class="card">
         <h2>confusion matrix</h2>
-        <img id="chart" src="/chart" alt="confusion matrix" class="chart">
+        <img src="/chart/confusion_matrix" alt="confusion matrix" class="chart">
+      </section>
+
+      <section class="card">
+        <h2>model comparison</h2>
+        <img src="/chart/model_comparison" alt="model comparison" class="chart">
+      </section>
+
+      <section class="card wide">
+        <h2>feature importance</h2>
+        <img src="/chart/feature_importance" alt="feature importance" class="chart wide-chart">
+      </section>
+
+      <section class="card wide">
+        <h2>prediction history</h2>
+        <div id="hist" class="hist">loading...</div>
       </section>
     </main>
   </div>

@@ -1,0 +1,17 @@
+{
+  "original_count": 150,
+  "expanded_count": 1500,
+  "augment_factor": 10,
+  "classes": [
+    "setosa",
+    "versicolor",
+    "virginica"
+  ],
+  "features": [
+    "sepal length (cm)",
+    "sepal width (cm)",
+    "petal length (cm)",
+    "petal width (cm)"
+  ],
+  "noise_scale": 0.06
+}

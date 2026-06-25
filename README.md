@@ -1,271 +1,269 @@
 # iris-species-classifier
 
-small ml project i built to practice training, comparing models and saving the best one. uses sklearn iris dataset — 4 flower measurements, 3 species.
+ml platform i built around the iris dataset. started small but grew into a full pipeline — data expansion, model comparison, auto tuning, charts and a web ui.
 
 ## what it does
 
-- compares 3 models with 5-fold cross validation
-- picks the best model and trains it on the train split
-- saves model + scaler + metrics to `models/`
-- single prediction from command line or batch prediction from csv
-- confusion matrix plot + simple flask api
-- web ui to test predictions in the browser
+- expands 150 original samples to 1500 with noise augmentation
+- compares 6 models with 5-fold cross validation
+- runs grid search on the best model type
+- saves metrics, charts and trained model
+- web dashboard with live predictions and history
 
-## setup
+## quick start
 
 ```bash
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
+python run.py
+python app.py
 ```
 
-## train
+open http://127.0.0.1:5000
+
+## pipeline
+
+`run.py` runs everything in order:
 
 ```bash
+python run.py
+```
+
+or step by step:
+
+```bash
+python expand_data.py
 python train.py
-```
-
-output example:
-- best model name
-- test accuracy
-- cv scores for each model
-
-files in `models/`:
-- `classifier.pkl` — best trained model
-- `scaler.pkl` — feature scaler
-- `metrics.json` — comparison results + classification report + confusion matrix
-
-## evaluate
-
-```bash
+python plot.py
 python evaluate.py
 ```
 
-## plot
+## scripts
 
-saves confusion matrix image to `output/confusion_matrix.png`:
+| script | what it does |
+|--------|--------------|
+| `expand_data.py` | builds original + expanded csv, saves stats |
+| `train.py` | trains 6 models, tunes best one, saves to models/ |
+| `plot.py` | confusion matrix, model comparison, feature importance charts |
+| `evaluate.py` | prints all metrics in terminal |
+| `predict.py` | single prediction from cli |
+| `batch_predict.py` | batch prediction from csv |
+| `app.py` | flask api + web dashboard |
+| `run.py` | full pipeline runner |
 
-```bash
-python plot.py
-```
+## data
 
-## predict (single sample)
+- `data/iris_original.csv` — 150 real samples
+- `data/iris_expanded.csv` — 1500 samples (generated, not in git)
+- `data/stats.json` — counts and metadata
+- `data/predictions.json` — last 50 web predictions
+- `data/samples.csv` — batch predict examples
 
-```bash
-python predict.py 5.1 3.5 1.4 0.2
-```
+## api endpoints
 
-order: sepal length, sepal width, petal length, petal width
+| endpoint | method | description |
+|----------|--------|-------------|
+| `/` | GET | web dashboard |
+| `/health` | GET | server status |
+| `/dataset` | GET | data expansion stats |
+| `/metrics` | GET | full model metrics |
+| `/history` | GET | prediction history |
+| `/samples` | GET | preset input values |
+| `/predict` | POST | make prediction |
+| `/chart/<name>` | GET | png charts |
 
-## predict (batch)
+predict body:
 
-```bash
-python batch_predict.py
-python batch_predict.py data/samples.csv
-```
-
-csv must have the same column names as the iris dataset features.
-
-## web ui
-
-train first, then start the server and open the browser:
-
-```bash
-python train.py
-python app.py
-```
-
-go to: http://127.0.0.1:5000
-
-the page has input fields, live prediction, model stats and confusion matrix chart.
-
-## api
-
-start server:
-
-```bash
-python app.py
-```
-
-health check:
-
-```bash
-curl http://127.0.0.1:5000/health
-```
-
-predict:
-
-```bash
-curl -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/json" -d "{\"sepal_length\": 5.1, \"sepal_width\": 3.5, \"petal_length\": 1.4, \"petal_width\": 0.2}"
+```json
+{
+  "sepal_length": 5.1,
+  "sepal_width": 3.5,
+  "petal_length": 1.4,
+  "petal_width": 0.2
+}
 ```
 
 ## variable names in code
 
 i kept names short on purpose. here's what they mean:
 
+### expand_data.py
+
+| name | what it is |
+|------|------------|
+| `a` | iris dataset object |
+| `b` | feature matrix |
+| `c` | target labels |
+| `d` | class names |
+| `e` | feature name list |
+| `f` | data folder path |
+| `g` | original csv path |
+| `h` | expanded csv path |
+| `i` | stats json path |
+| `j` | csv header columns |
+| `k` | file handle for original csv |
+| `l` | csv writer for original |
+| `m` | row index in loop |
+| `n` | one original row |
+| `o` | noise scale per feature |
+| `p` | augmented copies per sample |
+| `q` | list tracking expanded rows |
+| `r` | file handle for expanded csv |
+| `s` | csv writer for expanded |
+| `t` | original row in expanded file |
+| `u` | augment loop index |
+| `v` | noisy feature array |
+| `w` | one augmented row |
+| `x` | stats dict |
+| `y` | file handle for stats json |
+
 ### train.py
 
 | name | what it is |
 |------|------------|
-| `a` | full iris dataset object from sklearn |
-| `b` | feature matrix (all samples, 4 columns) |
-| `c` | labels / target array |
-| `d` | class names (setosa, versicolor, virginica) |
-| `e` | feature name list |
-| `f` | training features |
-| `g` | test features |
-| `h` | training labels |
-| `i` | test labels |
-| `j` | standard scaler instance |
-| `k` | scaled training data |
-| `l` | scaled test data |
-| `m` | dict of 3 model candidates |
-| `n` | cv scores dict for each model |
-| `o` | name of best model |
-| `p` | best cv mean score so far |
-| `q` | model name in comparison loop |
-| `r` | model instance in loop |
-| `s` | cross validation score array |
-| `t` | mean cv score |
-| `u` | std cv score |
-| `v` | selected best model instance |
-| `w` | predictions on test set |
-| `x` | test accuracy score |
-| `y` | classification report as dict |
-| `ae` | confusion matrix as nested list |
-| `z` | path to models folder |
-| `aa` | metrics dict written to json |
-| `ab` | file handle for metrics.json |
-| `ac` | model name in print loop |
-| `ad` | model stats in print loop |
-
-### predict.py
-
-| name | what it is |
-|------|------------|
-| `a` | list of 4 input features from argv |
-| `b` | reshaped numpy array (1 sample) |
-| `c` | models directory path |
-| `d` | loaded scaler |
-| `e` | loaded classifier |
-| `f` | scaled input |
-| `g` | predicted class index |
-| `h` | probability for each class |
-| `i` | file handle for metrics.json |
-| `j` | parsed metrics from json |
-| `k` | class names from metrics |
-| `l` | final predicted label |
-| `m` | loop index |
-| `n` | probability value in loop |
-
-### evaluate.py
-
-| name | what it is |
-|------|------------|
-| `a` | path to metrics.json |
-| `b` | file handle for metrics.json |
-| `c` | parsed metrics dict |
-| `d` | model name in comparison loop |
-| `e` | model stats in comparison loop |
-| `f` | class name in report loop |
-| `g` | per-class metrics dict |
-| `h` | class names for matrix header |
-| `i` | confusion matrix data |
-| `j` | header line string |
-| `k` | row index in matrix loop |
-| `l` | one row of matrix |
-| `m` | formatted row values string |
-
-### batch_predict.py
-
-| name | what it is |
-|------|------------|
-| `a` | csv file path from argv or default |
-| `b` | path object for csv |
-| `c` | models directory path |
-| `d` | loaded scaler |
-| `e` | loaded classifier |
-| `f` | file handle for metrics.json |
-| `g` | parsed metrics from json |
-| `h` | class names from metrics |
-| `i` | feature names from metrics |
-| `j` | list of feature rows from csv |
-| `k` | file handle for csv |
-| `l` | csv dict reader |
-| `m` | one csv row dict |
-| `n` | feature values from one row |
-| `o` | numpy array of all rows |
-| `p` | scaled input |
-| `q` | predicted class indices |
-| `r` | probability matrix |
-| `s` | original feature row in output loop |
-| `t` | predicted class index in loop |
-| `u` | probability row in loop |
-| `v` | predicted class label string |
-| `w` | confidence of predicted class |
-| `x` | formatted feature string for print |
+| `a` | expanded csv path |
+| `b` | feature rows list |
+| `c` | species labels list |
+| `m` | feature column names |
+| `g` | csv dict reader |
+| `h` | one csv row |
+| `i` | feature values from row |
+| `j` | feature numpy array |
+| `k` | label array |
+| `n` | label encoder |
+| `o` | encoded labels |
+| `p` | train features (60%) |
+| `q` | test features (20%) |
+| `r` | train labels |
+| `s` | test labels |
+| `t` | train split after val cut |
+| `u` | val features |
+| `v` | train labels after val cut |
+| `w` | val labels |
+| `x` | standard scaler |
+| `y` | scaled train data |
+| `z` | scaled val data |
+| `aa` | scaled test data |
+| `ab` | dict of 6 models |
+| `ac` | cv scores per model |
+| `ad` | best model name |
+| `ae` | best cv score tracker |
+| `af` | model name in cv loop |
+| `ag` | model instance in loop |
+| `ah` | cv score array |
+| `ai` | mean cv score |
+| `aj` | std cv score |
+| `ak` | grid search param grids |
+| `al` | grid search object |
+| `am` | tuned best estimator |
+| `an` | val predictions |
+| `ao` | test predictions |
+| `ap` | val accuracy |
+| `aq` | test accuracy |
+| `ar` | classification report dict |
+| `as_` | confusion matrix list |
+| `at` | feature importance dict |
+| `au` | feature name in importance loop |
+| `av` | importance value |
+| `aw` | mean abs coefficients |
+| `ax` | models folder path |
+| `ay` | stats json path |
+| `az` | stats file handle |
+| `ba` | loaded stats dict |
+| `bb` | full metrics dict |
+| `bc` | metrics file handle |
 
 ### plot.py
 
 | name | what it is |
 |------|------------|
-| `a` | path to metrics.json |
-| `b` | file handle for metrics.json |
-| `c` | parsed metrics dict |
-| `d` | confusion matrix as numpy array |
-| `e` | class names list |
-| `f` | matplotlib figure |
-| `g` | matplotlib axes |
-| `h` | image object from imshow |
-| `k` | output folder path |
-| `l` | output png path |
-| `m` | row index in text loop |
-| `n` | column index in text loop |
+| `a` | metrics json path |
+| `b` | metrics file handle |
+| `c` | parsed metrics |
+| `d` | output folder |
+| `e` | confusion matrix array |
+| `f` | class names |
+| `g` | figure for confusion matrix |
+| `h` | axes for confusion matrix |
+| `i` | imshow object |
+| `j` | row index in text loop |
+| `k` | col index in text loop |
+| `l` | confusion matrix png path |
+| `m` | model names for bar chart |
+| `n` | cv scores for bar chart |
+| `p` | figure for model comparison |
+| `q` | axes for model comparison |
+| `r` | bar chart object |
+| `s` | bar in label loop |
+| `t` | score value in label loop |
+| `u` | model comparison png path |
+| `v` | feature names for importance |
+| `w` | importance values |
+| `x` | figure for feature importance |
+| `y` | axes for feature importance |
+| `z` | bar chart for importance |
+| `aa` | feature importance png path |
 
 ### app.py
 
 | name | what it is |
 |------|------------|
-| `a` | flask app instance |
-| `b` | models directory path |
+| `a` | flask app |
+| `b` | models folder |
 | `c` | loaded scaler |
 | `d` | loaded classifier |
-| `e` | file handle for metrics.json |
-| `f` | parsed metrics from json |
-| `g` | class names list |
-| `h` | health check route function |
-| `i` | predict route function |
-| `j` | json body from request |
-| `k` | required field names list |
-| `l` | collected input values |
-| `m` | one field name in loop |
-| `n` | numpy array from input |
-| `o` | scaled input |
-| `p` | predicted class index |
-| `q` | probability array |
-| `r` | predicted species label |
-| `s` | loop index for probabilities dict |
-| `t` | index route — serves index.html |
-| `u` | chart route — serves confusion matrix png |
-| `v` | metrics route function |
+| `e` | metrics file handle |
+| `f` | parsed metrics |
+| `g` | class names |
+| `h` | feature key names for api |
+| `i` | predictions json path |
+| `j` | stats json path |
+| `k` | load history function |
+| `l` | history file handle |
+| `m` | save history function |
+| `n` | one history entry |
+| `o` | history list before save |
+| `p` | history file handle for write |
+| `t` | index route |
+| `u` | chart route |
+| `q` | chart filename param |
+| `r` | chart file path |
+| `v` | health route |
+| `w` | dataset route |
+| `x` | stats file handle |
+| `y` | metrics route |
+| `z` | history route |
+| `aa` | samples route |
+| `ab` | predict route |
+| `ac` | request json body |
+| `ad` | collected feature values |
+| `ae` | one feature key in loop |
+| `af` | input numpy array |
+| `ag` | scaled input |
+| `ah` | predicted class index |
+| `ai` | probability array |
+| `aj` | predicted species name |
+| `ak` | response dict |
+| `al` | loop index for probabilities |
 
 ### static/app.js
 
 | name | what it is |
 |------|------------|
 | `a` | form element |
-| `b` | result output element |
-| `c` | probability bars container |
+| `b` | result output |
+| `c` | probability bars |
 | `d` | model info container |
-| `e` | error message element |
-| `f` | chart image element |
-| `g` | load metrics function |
-| `h` | render probability bars function |
-| `i` | event or probabilities arg |
-| `j` | fetch response or sorted entries |
-| `k` | request body or species key |
-| `l` | fetch response or probability value |
-| `m` | json data or bar row element |
+| `e` | error element |
+| `f` | stats container |
+| `g` | history container |
+| `h` | presets container |
+| `i` | load dashboard function |
+| `j` | load history function |
+| `k` | load presets function |
+| `l` | render probability bars |
+| `m` | probabilities arg or event |
 
 ## stack
 
@@ -273,4 +271,4 @@ python, scikit-learn, numpy, joblib, matplotlib, flask, html/css/js
 
 ## notes
 
-dataset is built into sklearn. test split is 25%, stratified. web ui runs on the same flask server as the api.
+expanded data uses small gaussian noise (6% of feature std). not real new data but good for practicing larger datasets and pipeline workflows.

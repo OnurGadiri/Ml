@@ -4,6 +4,7 @@ __pycache__/
 venv/
 env/
 models/*.pkl
+data/iris_expanded.csv
 .DS_Store
 .idea/
 .vscode/
