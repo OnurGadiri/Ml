@@ -30,6 +30,11 @@ def main():
         for f, g in c["feature_importance"].items():
             print(f"  {f}: {g:.4f}")
         print()
+    if c.get("feature_ranges"):
+        print("feature ranges (train):")
+        for h, i in c["feature_ranges"].items():
+            print(f"  {h}: {i['min']} - {i['max']} (mean {i['mean']})")
+        print()
     print("per-class scores:")
     for h in c["classes"]:
         i = c["report"][h]

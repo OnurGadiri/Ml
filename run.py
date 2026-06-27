@@ -7,6 +7,7 @@ def main():
         [sys.executable, "expand_data.py"],
         [sys.executable, "train.py"],
         [sys.executable, "plot.py"],
+        [sys.executable, "test.py"],
     ]
 
     for b in a:

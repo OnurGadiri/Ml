@@ -9,6 +9,8 @@ ml platform i built around the iris dataset. started small but grew into a full 
 - runs grid search on the best model type
 - saves metrics, charts and trained model
 - web dashboard with live predictions and history
+- input validation with range warnings
+- automated tests and docker support
 
 ## quick start
 
@@ -50,7 +52,17 @@ python evaluate.py
 | `predict.py` | single prediction from cli |
 | `batch_predict.py` | batch prediction from csv |
 | `app.py` | flask api + web dashboard |
+| `test.py` | automated checks after training |
 | `run.py` | full pipeline runner |
+
+## docker
+
+```bash
+docker build -t iris-ml .
+docker run -p 5000:5000 iris-ml
+```
+
+open http://127.0.0.1:5000
 
 ## data
 
@@ -68,10 +80,14 @@ python evaluate.py
 | `/health` | GET | server status |
 | `/dataset` | GET | data expansion stats |
 | `/metrics` | GET | full model metrics |
-| `/history` | GET | prediction history |
+| `/ranges` | GET | feature min/max/mean from training |
 | `/samples` | GET | preset input values |
+| `/history` | GET / DELETE | list or clear predictions |
+| `/export/history` | GET | download predictions as csv |
 | `/predict` | POST | make prediction |
 | `/chart/<name>` | GET | png charts |
+
+charts: `confusion_matrix`, `model_comparison`, `feature_importance`, `dataset_scatter`, `class_distribution`
 
 predict body:
 

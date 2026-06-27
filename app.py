@@ -1,10 +1,12 @@
+import csv
+import io
 import json
 from datetime import datetime
 from pathlib import Path
 
 import joblib
 import numpy as np
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, Response
 
 
 def main():
@@ -20,53 +22,100 @@ def main():
     h = f.get("feature_keys", ["sepal_length", "sepal_width", "petal_length", "petal_width"])
     i = Path("data/predictions.json")
     j = Path("data/stats.json")
+    k = f.get("feature_ranges", {})
 
-    def k():
+    def l():
         if not i.exists():
             return []
-        with open(i, encoding="utf-8") as l:
-            return json.load(l)
+        with open(i, encoding="utf-8") as m:
+            return json.load(m)
 
-    def m(n):
+    def n(o):
         i.parent.mkdir(exist_ok=True)
-        o = k()
-        o.insert(0, n)
-        o = o[:50]
-        with open(i, "w", encoding="utf-8") as p:
-            json.dump(o, p, indent=2)
+        p = l()
+        p.insert(0, o)
+        p = p[:50]
+        with open(i, "w", encoding="utf-8") as q:
+            json.dump(p, q, indent=2)
+
+    def r(s):
+        t = []
+        if not k:
+            return t
+        for u, v in s.items():
+            if u not in k:
+                continue
+            w = k[u]
+            if v < w["min"] or v > w["max"]:
+                t.append(f"{u} outside trained range ({w['min']}-{w['max']})")
+        return t
 
     @a.route("/")
-    def t():
+    def v():
         return send_from_directory("static", "index.html")
 
-    @a.route("/chart/<q>")
-    def u(q):
-        r = Path("output") / f"{q}.png"
-        if not r.exists():
+    @a.route("/chart/<w>")
+    def x(w):
+        y = Path("output") / f"{w}.png"
+        if not y.exists():
             return jsonify({"error": "chart not found"}), 404
-        return send_from_directory("output", f"{q}.png")
+        return send_from_directory("output", f"{w}.png")
 
     @a.route("/health", methods=["GET"])
-    def v():
-        return jsonify({"status": "ok", "model": f["best_model"]})
+    def y():
+        return jsonify({"status": "ok", "model": f["best_model"], "accuracy": f["accuracy"]})
 
     @a.route("/dataset", methods=["GET"])
-    def w():
+    def z():
         if not j.exists():
             return jsonify({"error": "run expand_data.py first"}), 404
-        with open(j, encoding="utf-8") as x:
-            return jsonify(json.load(x))
+        with open(j, encoding="utf-8") as aa:
+            return jsonify(json.load(aa))
 
     @a.route("/metrics", methods=["GET"])
-    def y():
+    def ab():
         return jsonify(f)
 
+    @a.route("/ranges", methods=["GET"])
+    def ac():
+        return jsonify(k)
+
     @a.route("/history", methods=["GET"])
-    def z():
-        return jsonify(k())
+    def ad():
+        return jsonify(l())
+
+    @a.route("/history", methods=["DELETE"])
+    def ae():
+        with open(i, "w", encoding="utf-8") as af:
+            json.dump([], af)
+        return jsonify({"status": "cleared"})
+
+    @a.route("/export/history", methods=["GET"])
+    def ag():
+        ah = l()
+        ai = io.StringIO()
+        aj = csv.writer(ai)
+        aj.writerow(["time", "species", "confidence", "sepal_length", "sepal_width", "petal_length", "petal_width"])
+        for ak in ah:
+            al = ak["result"]
+            am = ak["input"]
+            aj.writerow([
+                ak["time"],
+                al["species"],
+                al["confidence"],
+                am.get("sepal_length", ""),
+                am.get("sepal_width", ""),
+                am.get("petal_length", ""),
+                am.get("petal_width", ""),
+            ])
+        return Response(
+            ai.getvalue(),
+            mimetype="text/csv",
+            headers={"Content-Disposition": "attachment; filename=predictions.csv"},
+        )
 
     @a.route("/samples", methods=["GET"])
-    def aa():
+    def an():
         return jsonify(
             {
                 "setosa": {"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2},
@@ -76,38 +125,41 @@ def main():
         )
 
     @a.route("/predict", methods=["POST"])
-    def ab():
-        ac = request.get_json(silent=True)
-        if not ac:
+    def ao():
+        ap = request.get_json(silent=True)
+        if not ap:
             return jsonify({"error": "send json body"}), 400
 
-        ad = []
-        for ae in h:
-            if ae not in ac:
-                return jsonify({"error": f"missing field: {ae}"}), 400
-            ad.append(float(ac[ae]))
+        aq = []
+        for ar in h:
+            if ar not in ap:
+                return jsonify({"error": f"missing field: {ar}"}), 400
+            aq.append(float(ap[ar]))
 
-        af = np.array(ad).reshape(1, -1)
-        ag = c.transform(af)
-        ah = d.predict(ag)[0]
-        ai = d.predict_proba(ag)[0]
-        aj = g[ah]
+        as_ = {h[at]: aq[at] for at in range(len(h))}
+        au = r(as_)
+        av = np.array(aq).reshape(1, -1)
+        aw = c.transform(av)
+        ax = d.predict(aw)[0]
+        ay = d.predict_proba(aw)[0]
+        az = g[ax]
 
-        ak = {
-            "species": aj,
-            "confidence": round(float(ai[ah]), 4),
-            "probabilities": {g[al]: round(float(ai[al]), 4) for al in range(len(g))},
+        ba = {
+            "species": az,
+            "confidence": round(float(ay[ax]), 4),
+            "probabilities": {g[bb]: round(float(ay[bb]), 4) for bb in range(len(g))},
+            "warnings": au,
         }
 
-        m(
+        n(
             {
                 "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "input": {h[am]: ad[am] for am in range(len(h))},
-                "result": ak,
+                "input": as_,
+                "result": ba,
             }
         )
 
-        return jsonify(ak)
+        return jsonify(ba)
 
     print("open: http://127.0.0.1:5000")
     a.run(host="127.0.0.1", port=5000, debug=False)

@@ -99,9 +99,18 @@ def main():
         for au, av in zip(m, aw):
             at[au] = round(float(av), 4)
     else:
-        ax = mutual_info_classif(y, v, random_state=42)
-        for au, av in zip(m, ax):
+        ay = mutual_info_classif(y, v, random_state=42)
+        for au, av in zip(m, ay):
             at[au] = round(float(av), 4)
+
+    bg = ["sepal_length", "sepal_width", "petal_length", "petal_width"]
+    bf = {}
+    for bh, bi in enumerate(bg):
+        bf[bi] = {
+            "min": round(float(t[:, bh].min()), 2),
+            "max": round(float(t[:, bh].max()), 2),
+            "mean": round(float(t[:, bh].mean()), 2),
+        }
 
     ax = Path("models")
     ax.mkdir(exist_ok=True)
@@ -124,6 +133,7 @@ def main():
         "features": m,
         "feature_keys": ["sepal_length", "sepal_width", "petal_length", "petal_width"],
         "feature_importance": at,
+        "feature_ranges": bf,
         "feature_count": int(j.shape[1]),
         "sample_count": int(j.shape[0]),
         "original_count": ba["original_count"],
