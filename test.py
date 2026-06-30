@@ -52,6 +52,16 @@ def main():
         print("fail: accuracy below 0.9")
         sys.exit(1)
 
+    r = Path("data/compare.json")
+    if not r.exists():
+        print("fail: compare.json missing")
+        sys.exit(1)
+
+    s = Path("output/report.html")
+    if not s.exists():
+        print("fail: report.html missing")
+        sys.exit(1)
+
     print("all tests passed")
 
 

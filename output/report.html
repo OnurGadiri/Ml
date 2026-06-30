@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Iris ML Report</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f1419; color: #e8edf5; padding: 2rem; max-width: 900px; margin: auto; }
+    h1 { color: #3ecf8e; }
+    h2 { color: #8b9cb3; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    th, td { border-bottom: 1px solid #2d3a4f; padding: 0.5rem; text-align: left; }
+    th { color: #8b9cb3; font-size: 0.8rem; }
+    tr.best td { color: #3ecf8e; font-weight: 600; }
+    .meta { color: #8b9cb3; font-size: 0.9rem; }
+    img { max-width: 100%; border-radius: 8px; margin-top: 0.5rem; background: #fff; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Iris Species Classifier — Report</h1>
+  <p class="meta">generated 2026-06-30 23:45 | model: k_neighbors | trained: 2026-06-30 23:45:38</p>
+
+  <h2>summary</h2>
+  <table>
+    <tr><th>metric</th><th>value</th></tr>
+    <tr><td>test accuracy</td><td>100.0%</td></tr>
+    <tr><td>val accuracy</td><td>100.0%</td></tr>
+    <tr><td>f1 macro</td><td>100.0%</td></tr>
+    <tr><td>original samples</td><td>150</td></tr>
+    <tr><td>expanded samples</td><td>1500</td></tr>
+    <tr><td>train / val / test</td><td>900 / 300 / 300</td></tr>
+  </table>
+
+  
+        <h2>original vs expanded</h2>
+        <table>
+          <tr><th>dataset</th><th>samples</th><th>test accuracy</th></tr>
+          <tr><td>original only</td><td>150</td><td>93.3%</td></tr>
+          <tr><td>expanded</td><td>1500</td><td>100.0%</td></tr>
+        </table>
+        
+
+  <h2>model comparison</h2>
+  <table>
+    <tr><th>model</th><th>cv mean</th><th>cv std</th></tr>
+    <tr class=""><td>random_forest</td><td>98.4%</td><td>±1.0%</td></tr><tr class=""><td>logistic_regression</td><td>97.9%</td><td>±1.2%</td></tr><tr class="best"><td>k_neighbors</td><td>99.3%</td><td>±0.7%</td></tr><tr class=""><td>gradient_boosting</td><td>98.3%</td><td>±1.2%</td></tr><tr class=""><td>decision_tree</td><td>97.0%</td><td>±0.6%</td></tr><tr class=""><td>svm</td><td>98.0%</td><td>±0.9%</td></tr>
+  </table>
+
+  <h2>feature importance</h2>
+  <table>
+    <tr><th>feature</th><th>score</th></tr>
+    <tr><td>sepal length (cm)</td><td>0.5208</td></tr><tr><td>sepal width (cm)</td><td>0.3093</td></tr><tr><td>petal length (cm)</td><td>0.9886</td></tr><tr><td>petal width (cm)</td><td>0.9862</td></tr>
+  </table>
+
+  <h2>charts</h2>
+  <div class="grid">
+    <div><p>confusion matrix</p><img src="confusion_matrix.png" alt="confusion matrix"></div>
+    <div><p>model comparison</p><img src="model_comparison.png" alt="model comparison"></div>
+    <div><p>dataset scatter</p><img src="dataset_scatter.png" alt="scatter"></div>
+    <div><p>class distribution</p><img src="class_distribution.png" alt="distribution"></div>
+  </div>
+</body>
+</html>

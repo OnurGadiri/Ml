@@ -1,12 +1,13 @@
 import csv
 import json
+from datetime import datetime
 from pathlib import Path
 
 import joblib
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 from sklearn.model_selection import GridSearchCV, cross_val_score, train_test_split
 from sklearn.feature_selection import mutual_info_classif
 from sklearn.neighbors import KNeighborsClassifier
@@ -89,6 +90,7 @@ def main():
     aq = accuracy_score(s, ao)
     ar = classification_report(s, ao, target_names=n.classes_, output_dict=True)
     as_ = confusion_matrix(s, ao).tolist()
+    bd = round(float(f1_score(s, ao, average="macro")), 4)
 
     at = {}
     if hasattr(am, "feature_importances_"):
@@ -129,6 +131,8 @@ def main():
         "model_comparison": ac,
         "val_accuracy": round(ap, 4),
         "accuracy": round(aq, 4),
+        "f1_macro": bd,
+        "trained_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "classes": n.classes_.tolist(),
         "features": m,
         "feature_keys": ["sepal_length", "sepal_width", "petal_length", "petal_width"],

@@ -16,6 +16,8 @@ def main():
     print(f"tuned params: {c.get('tuned_params', {})}")
     print(f"val accuracy: {c.get('val_accuracy', c['accuracy'])}")
     print(f"test accuracy: {c['accuracy']}")
+    print(f"f1 macro: {c.get('f1_macro', c['accuracy'])}")
+    print(f"trained at: {c.get('trained_at', 'n/a')}")
     print(f"original samples: {c.get('original_count', c['sample_count'])}")
     print(f"expanded samples: {c.get('expanded_count', c['sample_count'])}")
     print(f"train / val / test: {c.get('train_count', '?')} / {c.get('val_count', '?')} / {c.get('test_count', '?')}")

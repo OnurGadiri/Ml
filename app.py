@@ -61,6 +61,21 @@ def main():
             return jsonify({"error": "chart not found"}), 404
         return send_from_directory("output", f"{w}.png")
 
+    @a.route("/report")
+    def ah():
+        y = Path("output") / "report.html"
+        if not y.exists():
+            return jsonify({"error": "run report.py first"}), 404
+        return send_from_directory("output", "report.html")
+
+    @a.route("/compare", methods=["GET"])
+    def ai():
+        y = Path("data/compare.json")
+        if not y.exists():
+            return jsonify({"error": "run compare.py first"}), 404
+        with open(y, encoding="utf-8") as aj:
+            return jsonify(json.load(aj))
+
     @a.route("/health", methods=["GET"])
     def y():
         return jsonify({"status": "ok", "model": f["best_model"], "accuracy": f["accuracy"]})
@@ -160,6 +175,37 @@ def main():
         )
 
         return jsonify(ba)
+
+    @a.route("/predict/batch", methods=["POST"])
+    def ak():
+        al = request.get_json(silent=True)
+        if not al or "rows" not in al:
+            return jsonify({"error": "send json with rows array"}), 400
+
+        am = []
+        for an, ao in enumerate(al["rows"]):
+            ap = []
+            for aq in h:
+                if aq not in ao:
+                    return jsonify({"error": f"row {an} missing {aq}"}), 400
+                ap.append(float(ao[aq]))
+
+            ar = {h[as_]: ap[as_] for as_ in range(len(h))}
+            at = np.array(ap).reshape(1, -1)
+            au = c.transform(at)
+            av = d.predict(au)[0]
+            aw = d.predict_proba(au)[0]
+            ax = g[av]
+            am.append(
+                {
+                    "species": ax,
+                    "confidence": round(float(aw[av]), 4),
+                    "probabilities": {g[ay]: round(float(aw[ay]), 4) for ay in range(len(g))},
+                    "warnings": r(ar),
+                }
+            )
+
+        return jsonify({"count": len(am), "results": am})
 
     print("open: http://127.0.0.1:5000")
     a.run(host="127.0.0.1", port=5000, debug=False)

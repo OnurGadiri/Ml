@@ -11,6 +11,8 @@ ml platform i built around the iris dataset. started small but grew into a full 
 - web dashboard with live predictions and history
 - input validation with range warnings
 - automated tests and docker support
+- original vs expanded comparison report
+- github actions ci pipeline
 
 ## quick start
 
@@ -52,6 +54,8 @@ python evaluate.py
 | `predict.py` | single prediction from cli |
 | `batch_predict.py` | batch prediction from csv |
 | `app.py` | flask api + web dashboard |
+| `compare.py` | original vs expanded accuracy comparison |
+| `report.py` | generates html report in output/ |
 | `test.py` | automated checks after training |
 | `run.py` | full pipeline runner |
 
@@ -84,10 +88,24 @@ open http://127.0.0.1:5000
 | `/samples` | GET | preset input values |
 | `/history` | GET / DELETE | list or clear predictions |
 | `/export/history` | GET | download predictions as csv |
+| `/compare` | GET | original vs expanded stats |
+| `/report` | GET | full html report page |
+| `/predict/batch` | POST | predict multiple rows at once |
 | `/predict` | POST | make prediction |
 | `/chart/<name>` | GET | png charts |
 
 charts: `confusion_matrix`, `model_comparison`, `feature_importance`, `dataset_scatter`, `class_distribution`
+
+batch predict body:
+
+```json
+{
+  "rows": [
+    {"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2},
+    {"sepal_length": 6.3, "sepal_width": 3.3, "petal_length": 6.0, "petal_width": 2.5}
+  ]
+}
+```
 
 predict body:
 

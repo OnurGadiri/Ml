@@ -7,6 +7,8 @@ def main():
         [sys.executable, "expand_data.py"],
         [sys.executable, "train.py"],
         [sys.executable, "plot.py"],
+        [sys.executable, "compare.py"],
+        [sys.executable, "report.py"],
         [sys.executable, "test.py"],
     ]
 

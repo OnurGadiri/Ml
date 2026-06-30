@@ -56,6 +56,37 @@ h1 {
   max-width: 40rem;
 }
 
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.tab {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tab.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.panel {
+  display: none;
+}
+
+.panel.on {
+  display: block;
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -368,6 +399,71 @@ button[type="submit"]:hover:not(:disabled) {
 
 .hist .empty {
   color: var(--muted);
+}
+
+.preset.setosa { border-color: #3ecf8e; }
+.preset.versicolor { border-color: #5b9fd4; }
+.preset.virginica { border-color: #e6c07b; }
+
+.sp.setosa { color: #3ecf8e; }
+.sp.versicolor { color: #5b9fd4; }
+.sp.virginica { color: #e6c07b; }
+
+.ring {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0 0.5rem;
+}
+
+.ring-svg {
+  width: 110px;
+  height: 110px;
+}
+
+.ring-bg {
+  fill: none;
+  stroke: var(--bg);
+  stroke-width: 3;
+}
+
+.ring-fill {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.ring-txt {
+  fill: var(--text);
+  font-size: 0.45rem;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.compare table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.compare th,
+.compare td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.45rem 0.3rem;
+  text-align: left;
+}
+
+.compare th {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.link-btn.big {
+  display: inline-block;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
 }
 
 @media (max-width: 800px) {

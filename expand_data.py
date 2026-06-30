@@ -1,5 +1,6 @@
 import csv
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -21,35 +22,35 @@ def main():
     i = f / "stats.json"
 
     j = ["species", "source"] + e
+    k = int(sys.argv[1]) if len(sys.argv) > 1 else 9
 
-    with open(g, "w", newline="", encoding="utf-8") as k:
-        l = csv.writer(k)
-        l.writerow(j)
-        for m in range(b.shape[0]):
-            n = [str(d[c[m]]), "original"] + [round(float(x), 4) for x in b[m]]
-            l.writerow(n)
+    with open(g, "w", newline="", encoding="utf-8") as l:
+        m = csv.writer(l)
+        m.writerow(j)
+        for n in range(b.shape[0]):
+            o = [str(d[c[n]]), "original"] + [round(float(x), 4) for x in b[n]]
+            m.writerow(o)
 
-    o = np.std(b, axis=0) * 0.06
-    p = 9
+    p = np.std(b, axis=0) * 0.06
     q = []
 
     with open(h, "w", newline="", encoding="utf-8") as r:
         s = csv.writer(r)
         s.writerow(j)
-        for m in range(b.shape[0]):
-            t = [str(d[c[m]]), "original"] + [round(float(x), 4) for x in b[m]]
+        for n in range(b.shape[0]):
+            t = [str(d[c[n]]), "original"] + [round(float(x), 4) for x in b[n]]
             s.writerow(t)
             q.append(t)
-            for u in range(p):
-                v = b[m] + np.random.default_rng(m * 100 + u).normal(0, o)
-                w = [str(d[c[m]]), "augmented"] + [round(float(x), 4) for x in v]
+            for u in range(k):
+                v = b[n] + np.random.default_rng(n * 100 + u).normal(0, p)
+                w = [str(d[c[n]]), "augmented"] + [round(float(x), 4) for x in v]
                 s.writerow(w)
                 q.append(w)
 
     x = {
         "original_count": int(b.shape[0]),
         "expanded_count": len(q),
-        "augment_factor": p + 1,
+        "augment_factor": k + 1,
         "classes": d.tolist(),
         "features": e,
         "noise_scale": 0.06,

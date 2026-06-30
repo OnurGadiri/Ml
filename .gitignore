@@ -5,6 +5,7 @@ venv/
 env/
 models/*.pkl
 data/iris_expanded.csv
+data/compare.json
 .DS_Store
 .idea/
 .vscode/

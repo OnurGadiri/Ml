@@ -9,161 +9,209 @@ const h = document.getElementById("presets");
 const i = document.getElementById("clear");
 const j = document.getElementById("warn");
 const k = document.getElementById("btn");
+const l = document.getElementById("ring");
+const m = document.getElementById("compare");
+const n = document.querySelectorAll(".tab");
+const o = document.querySelectorAll(".panel");
 
-const l = [
+const p = {
+  setosa: "#3ecf8e",
+  versicolor: "#5b9fd4",
+  virginica: "#e6c07b",
+};
+
+const q = [
   ["sepal_length", "sepal_length_r"],
   ["sepal_width", "sepal_width_r"],
   ["petal_length", "petal_length_r"],
   ["petal_width", "petal_width_r"],
 ];
 
-l.forEach(([m, n]) => {
-  const o = a[m];
-  const p = a[n];
-  o.addEventListener("input", () => {
-    p.value = o.value;
+q.forEach(([r, s]) => {
+  const t = a[r];
+  const u = a[s];
+  t.addEventListener("input", () => {
+    u.value = t.value;
   });
-  p.addEventListener("input", () => {
-    o.value = p.value;
+  u.addEventListener("input", () => {
+    t.value = u.value;
   });
 });
 
-async function m() {
-  const n = await fetch("/metrics");
-  const o = await n.json();
-  const p = await fetch("/dataset");
-  const q = await p.json();
-  const r = await fetch("/ranges");
-  const s = await r.json();
+n.forEach((v) => {
+  v.addEventListener("click", () => {
+    n.forEach((w) => w.classList.remove("on"));
+    o.forEach((w) => w.classList.remove("on"));
+    v.classList.add("on");
+    document.getElementById(`${v.dataset.tab}-panel`).classList.add("on");
+  });
+});
 
-  document.querySelectorAll(".hint").forEach((t) => {
-    const u = t.dataset.key;
-    if (s[u]) {
-      t.textContent = `range: ${s[u].min} - ${s[u].max} (mean ${s[u].mean})`;
-      const v = a[u];
-      const w = a[`${u}_r`];
-      v.min = s[u].min;
-      v.max = s[u].max;
-      w.min = s[u].min;
-      w.max = s[u].max;
+async function r() {
+  const s = await fetch("/metrics");
+  const t = await s.json();
+  const u = await fetch("/dataset");
+  const v = await u.json();
+  const w = await fetch("/ranges");
+  const x = await w.json();
+
+  document.querySelectorAll(".hint").forEach((y) => {
+    const z = y.dataset.key;
+    if (x[z]) {
+      y.textContent = `range: ${x[z].min} - ${x[z].max} (mean ${x[z].mean})`;
+      const aa = a[z];
+      const ab = a[`${z}_r`];
+      aa.min = x[z].min;
+      aa.max = x[z].max;
+      ab.min = x[z].min;
+      ab.max = x[z].max;
     }
   });
 
-  const x = Object.entries(o.model_comparison)
-    .map(([y, z]) => {
-      const aa = y === o.best_model ? "pill best" : "pill";
-      return `<span class="${aa}">${y}: ${(z.cv_mean * 100).toFixed(1)}%</span>`;
+  const ac = Object.entries(t.model_comparison)
+    .map(([ad, ae]) => {
+      const af = ad === t.best_model ? "pill best" : "pill";
+      return `<span class="${af}">${ad}: ${(ae.cv_mean * 100).toFixed(1)}%</span>`;
     })
     .join("");
 
   f.innerHTML = `
-    <div class="stat"><span>original</span><strong>${q.original_count}</strong></div>
-    <div class="stat"><span>expanded</span><strong>${q.expanded_count}</strong></div>
-    <div class="stat"><span>test accuracy</span><strong>${(o.accuracy * 100).toFixed(1)}%</strong></div>
-    <div class="stat"><span>best model</span><strong>${o.best_model.replace(/_/g, " ")}</strong></div>
+    <div class="stat"><span>original</span><strong>${v.original_count}</strong></div>
+    <div class="stat"><span>expanded</span><strong>${v.expanded_count}</strong></div>
+    <div class="stat"><span>f1 macro</span><strong>${((t.f1_macro || 0) * 100).toFixed(1)}%</strong></div>
+    <div class="stat"><span>test accuracy</span><strong>${(t.accuracy * 100).toFixed(1)}%</strong></div>
   `;
 
   d.innerHTML = `
-    <p><strong>best model:</strong> ${o.best_model}</p>
-    <p><strong>tuned params:</strong> ${JSON.stringify(o.tuned_params || {})}</p>
-    <p><strong>val accuracy:</strong> ${((o.val_accuracy || o.accuracy) * 100).toFixed(1)}%</p>
-    <p><strong>test accuracy:</strong> ${(o.accuracy * 100).toFixed(1)}%</p>
-    <p><strong>split:</strong> train ${o.train_count} / val ${o.val_count} / test ${o.test_count}</p>
-    <div class="models">${x}</div>
+    <p><strong>best model:</strong> ${t.best_model}</p>
+    <p><strong>trained at:</strong> ${t.trained_at || "n/a"}</p>
+    <p><strong>tuned params:</strong> ${JSON.stringify(t.tuned_params || {})}</p>
+    <p><strong>val accuracy:</strong> ${((t.val_accuracy || t.accuracy) * 100).toFixed(1)}%</p>
+    <p><strong>test accuracy:</strong> ${(t.accuracy * 100).toFixed(1)}%</p>
+    <p><strong>split:</strong> train ${t.train_count} / val ${t.val_count} / test ${t.test_count}</p>
+    <div class="models">${ac}</div>
   `;
+
+  try {
+    const ag = await fetch("/compare");
+    const ah = await ag.json();
+    m.innerHTML = `
+      <table>
+        <tr><th>dataset</th><th>samples</th><th>accuracy</th></tr>
+        <tr><td>original only</td><td>${ah.original_only.samples}</td><td>${(ah.original_only.test_accuracy * 100).toFixed(1)}%</td></tr>
+        <tr><td>expanded</td><td>${ah.expanded.samples}</td><td>${(ah.expanded.test_accuracy * 100).toFixed(1)}%</td></tr>
+      </table>
+    `;
+  } catch {
+    m.innerHTML = '<p class="empty">run compare.py first</p>';
+  }
 }
 
-async function n() {
-  const o = await fetch("/history");
-  const p = await o.json();
-  if (!p.length) {
+async function s() {
+  const t = await fetch("/history");
+  const u = await t.json();
+  if (!u.length) {
     g.innerHTML = '<p class="empty">no predictions yet</p>';
     return;
   }
-  const q = p
+  const v = u
     .map(
-      (r) => `
+      (w) => `
     <tr>
-      <td>${r.time}</td>
-      <td class="sp">${r.result.species}</td>
-      <td>${(r.result.confidence * 100).toFixed(1)}%</td>
-      <td>${Object.values(r.input).map((s) => s.toFixed(1)).join(", ")}</td>
+      <td>${w.time}</td>
+      <td class="sp ${w.result.species}">${w.result.species}</td>
+      <td>${(w.result.confidence * 100).toFixed(1)}%</td>
+      <td>${Object.values(w.input).map((x) => x.toFixed(1)).join(", ")}</td>
     </tr>
   `
     )
     .join("");
-  g.innerHTML = `<table><thead><tr><th>time</th><th>species</th><th>conf</th><th>input</th></tr></thead><tbody>${q}</tbody></table>`;
+  g.innerHTML = `<table><thead><tr><th>time</th><th>species</th><th>conf</th><th>input</th></tr></thead><tbody>${v}</tbody></table>`;
 }
 
-async function o() {
-  const p = await fetch("/samples");
-  const q = await p.json();
-  h.innerHTML = Object.entries(q)
-    .map(([r, s]) => `<button type="button" class="preset" data-species="${r}">${r}</button>`)
+async function t() {
+  const u = await fetch("/samples");
+  const v = await u.json();
+  h.innerHTML = Object.entries(v)
+    .map(([w]) => `<button type="button" class="preset ${w}" data-species="${w}">${w}</button>`)
     .join("");
 
-  h.querySelectorAll(".preset").forEach((t) => {
-    t.addEventListener("click", () => {
-      const u = q[t.dataset.species];
-      l.forEach(([v]) => {
-        a[v].value = u[v];
-        a[`${v}_r`].value = u[v];
+  h.querySelectorAll(".preset").forEach((x) => {
+    x.addEventListener("click", () => {
+      const y = v[x.dataset.species];
+      q.forEach(([z]) => {
+        a[z].value = y[z];
+        a[`${z}_r`].value = y[z];
       });
     });
   });
 }
 
-function p(q) {
+function u(v, w) {
+  const x = p[w] || "#3ecf8e";
+  l.innerHTML = `
+    <svg viewBox="0 0 36 36" class="ring-svg">
+      <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+      <path class="ring-fill" stroke="${x}" stroke-dasharray="${v * 100}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+      <text x="18" y="20.35" class="ring-txt">${(v * 100).toFixed(0)}%</text>
+    </svg>
+  `;
+}
+
+function v(w) {
   c.innerHTML = "";
-  const r = Object.entries(q).sort((s, t) => t[1] - s[1]);
-  for (const [s, t] of r) {
-    const u = document.createElement("div");
-    u.className = "row";
-    u.innerHTML = `
-      <span>${s}</span>
-      <div class="track"><div class="fill" style="width:${t * 100}%"></div></div>
-      <span>${(t * 100).toFixed(1)}%</span>
+  const x = Object.entries(w).sort((y, z) => z[1] - y[1]);
+  for (const [y, z] of x) {
+    const aa = document.createElement("div");
+    aa.className = "row";
+    const ab = p[y] || "#3ecf8e";
+    aa.innerHTML = `
+      <span class="${y}">${y}</span>
+      <div class="track"><div class="fill" style="width:${z * 100}%;background:${ab}"></div></div>
+      <span>${(z * 100).toFixed(1)}%</span>
     `;
-    c.appendChild(u);
+    c.appendChild(aa);
   }
 }
 
-a.addEventListener("submit", async (q) => {
-  q.preventDefault();
+a.addEventListener("submit", async (w) => {
+  w.preventDefault();
   e.textContent = "";
   j.textContent = "";
   b.classList.remove("empty");
   k.disabled = true;
   k.textContent = "predicting...";
 
-  const r = new FormData(a);
-  const s = {
-    sepal_length: parseFloat(r.get("sepal_length")),
-    sepal_width: parseFloat(r.get("sepal_width")),
-    petal_length: parseFloat(r.get("petal_length")),
-    petal_width: parseFloat(r.get("petal_width")),
+  const x = new FormData(a);
+  const y = {
+    sepal_length: parseFloat(x.get("sepal_length")),
+    sepal_width: parseFloat(x.get("sepal_width")),
+    petal_length: parseFloat(x.get("petal_length")),
+    petal_width: parseFloat(x.get("petal_width")),
   };
 
   try {
-    const t = await fetch("/predict", {
+    const z = await fetch("/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(s),
+      body: JSON.stringify(y),
     });
-    const u = await t.json();
-    if (!t.ok) {
-      e.textContent = u.error || "request failed";
+    const aa = await z.json();
+    if (!z.ok) {
+      e.textContent = aa.error || "request failed";
       return;
     }
+    const ab = p[aa.species] || "#3ecf8e";
     b.innerHTML = `
-      <span class="sp">${u.species}</span>
-      <span class="cf">confidence: ${(u.confidence * 100).toFixed(1)}%</span>
+      <span class="sp ${aa.species}" style="color:${ab}">${aa.species}</span>
+      <span class="cf">confidence: ${(aa.confidence * 100).toFixed(1)}%</span>
     `;
-    if (u.warnings && u.warnings.length) {
-      j.textContent = u.warnings.join(" | ");
+    if (aa.warnings && aa.warnings.length) {
+      j.textContent = aa.warnings.join(" | ");
     }
-    p(u.probabilities);
-    n();
+    u(aa.confidence, aa.species);
+    v(aa.probabilities);
+    s();
   } catch {
     e.textContent = "could not reach server. run python app.py first";
   } finally {
@@ -174,9 +222,9 @@ a.addEventListener("submit", async (q) => {
 
 i.addEventListener("click", async () => {
   await fetch("/history", { method: "DELETE" });
-  n();
+  s();
 });
 
-m();
-n();
-o();
+r();
+s();
+t();
